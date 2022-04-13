@@ -7,6 +7,7 @@ import java.util.Scanner;
 /**
  * Word class is responsible for generating a random 5-letter word and determining if guesses are valid
  * @version 1.0
+ * @author Noah Stafford (if anyone has questions LOL)
  */
 
 public class Word {
@@ -74,7 +75,32 @@ public class Word {
      * @param guess the user's valid word that they guessed
      * @return an ArrayList of the correct/incorrect letters that the user guessed
      */
-   // public ArrayList checkWord(String guess) {
-
-    //}
+   public ArrayList checkWord(String guess) {
+       ArrayList<LetterState> letters = new ArrayList<>();
+       boolean present=false; //when a letter isn't correct but it's still present in the word
+       for (int a=0; a<5; a++)
+       {
+           present=false;
+           if (guess.substring(a,a+1).equals(todaysWord.substring(a,a+1)))
+           {
+               letters.add(LetterState.CORRECT);
+           }
+           else
+           {
+               for (int b=0; b<5; b++)
+               {
+                   if (guess.substring(a,a+1).equals(todaysWord.substring(b,b+1)))
+                   {
+                       present = true;
+                       letters.add(LetterState.PRESENT);
+                   }
+               }
+               if (!present)
+               {
+                   letters.add(LetterState.ABSENT);
+               }
+           }
+       }
+       return letters;
+   }
 }
