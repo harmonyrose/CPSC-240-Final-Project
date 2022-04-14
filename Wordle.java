@@ -83,6 +83,10 @@ class Tile extends JLabel {
     public void setType(LetterState type) {
         this.type = type;
     }
+
+    public LetterState getType() {
+        return type;
+    }
 }
 
 class ButtonListener implements ActionListener {
@@ -102,14 +106,8 @@ class ButtonListener implements ActionListener {
                 // when a letter, find the first empty label and add the letter to it.
                 ArrayList tiles = grid.getTiles();
                 Tile emptyLabel = grid.getEmptyTile(tiles);
-                int emptyIndex = tiles.indexOf(emptyLabel);
-                //TODO: stops at end of word but cannot continue, whoops.
-                if (emptyIndex == 5 | emptyIndex == 10 | emptyIndex == 15 | emptyIndex == 20 | emptyIndex == 25 | emptyIndex == 30) {
-                    break;
-                } else {
-                    JButton clicked = (JButton) e.getSource();
-                    emptyLabel.setText(clicked.getText());
-                }
+                JButton clicked = (JButton) e.getSource();
+                emptyLabel.setText(clicked.getText());
             }
 
             // for the other buttons, call the appropriate method
@@ -160,7 +158,7 @@ class Grid extends JPanel {
     private Word word;
 
     public Grid() {
-        this.word = new Word(word.getTodaysWord());
+        this.word = new Word();
         this.setBackground(new Color(18, 18, 19));
         this.setForeground(new Color(18, 18, 19));
         this.setSize(new Dimension(350, 420));
@@ -185,6 +183,8 @@ class Grid extends JPanel {
             if (tiles.get(i).getText().equals("")) {
                 emptyLabel = tiles.get(i);
                 break;
+            } else {
+                emptyLabel.setText("end");
             }
         }
         return emptyLabel;
@@ -192,33 +192,55 @@ class Grid extends JPanel {
 
     public void enter() {
         String guess = "";
+        int start = 0;
         Tile emptyLabel = getEmptyTile(tiles);
-        int start = tiles.indexOf(emptyLabel) - 5;
-        for (int i = 0; i < 5; i++) {
-            guess = guess + tiles.get(start + i).getText();
+        if (emptyLabel.getText().equals("end")) {
+            start = 25;
+        } else {
+            start = tiles.indexOf(emptyLabel) - 5;
         }
-        if (word.isValid(guess.toLowerCase())) {
-            ArrayList letters = word.checkWord(guess.toLowerCase());
+        if (start < 0) {
+            JOptionPane.showMessageDialog(new JFrame(), "Please type a full word.", "Incomplete Word", JOptionPane.ERROR_MESSAGE);
+        } else {
             for (int i = 0; i < 5; i++) {
-                tiles.get(start + i).setType((LetterState) letters.get(i));
-                tiles.get(start + i).update();
-                for(Key key : Wordle.keys) {
-                    if (key.getText().equals(guess.substring(i, i + 1))) {
-                        key.setType((LetterState) letters.get(i));
-                        key.update();
+                guess = guess + tiles.get(start + i).getText();
+            }
+            if (word.isValid(guess)) {
+                ArrayList results = word.checkWord(guess.toLowerCase());
+                int counter = 0;
+                for (int i = 0; i < 5; i++) {
+                    if (results.get(i) == LetterState.CORRECT) {
+                        counter++;
+                    }
+                    tiles.get(start + i).setType((LetterState) results.get(i));
+                    tiles.get(start + i).update();
+                    for (Key key : Wordle.keys) {
+                        if (key.getText().equals(guess.substring(i, i + 1))) {
+                            key.setType((LetterState) results.get(i));
+                            key.update();
+                        }
                     }
                 }
+                if (counter == 5) {
+                    JOptionPane.showMessageDialog(new JFrame(), "Hooray! You won!", "Congrats!", JOptionPane.INFORMATION_MESSAGE);
+                } else if (tiles.get(29).getType() != LetterState.DEFAULT) {
+                    JOptionPane.showMessageDialog(new JFrame(), "Oh no! You lost :(", "Sorry...", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(new JFrame(), "We don't recognize that word.", "Invalid Word", JOptionPane.ERROR_MESSAGE);
             }
-        } else {
-            JOptionPane.showMessageDialog(new JFrame(), "We don't recognize that word.", "Invalid Word", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     public void back() {
         Tile emptyLabel = getEmptyTile(tiles);
-
-        int tileToEmpty = tiles.indexOf(emptyLabel) - 1;
-        if (tileToEmpty > -1) {
+        int tileToEmpty = 0;
+        if (emptyLabel.getText().equals("end")) {
+            tileToEmpty = 29;
+        } else {
+            tileToEmpty = tiles.indexOf(emptyLabel) - 1;
+        }
+        if (tileToEmpty > -1 && tiles.get(tileToEmpty).getType() == LetterState.DEFAULT) {
             tiles.get(tileToEmpty).setText("");
         }
     }
