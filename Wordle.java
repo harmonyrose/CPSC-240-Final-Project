@@ -54,6 +54,7 @@ class Tile extends JLabel {
 
     public Tile() {
         this.type = LetterState.DEFAULT;
+        this.setOpaque(true);
         this.setBackground(new Color(18, 18, 19));
         this.setFont(new Font("Arial", Font.BOLD, 36));
         this.setForeground(new Color(255, 255, 255));
@@ -68,19 +69,14 @@ class Tile extends JLabel {
     //hopefully changes background after pressing enter?
     public void update() {
         if (this.type == LetterState.DEFAULT) {
-            this.setBackground(new Color(129, 131, 132));
+            this.setBackground(new Color(18, 18, 19));
         } else if (this.type == LetterState.ABSENT) {
             this.setBackground(new Color(58, 58, 60));
         } else if (this.type == LetterState.PRESENT) {
-            this.setBackground(new Color(83, 141, 78));
-        } else if (this.type == LetterState.CORRECT) {
             this.setBackground(new Color(181, 159, 59));
+        } else if (this.type == LetterState.CORRECT) {
+            this.setBackground(new Color(83, 141, 78));
         }
-    }
-
-    // possibly relevant for enter()
-    public LetterState getType() {
-        return type;
     }
 
     // possibly relevant for enter()
@@ -90,61 +86,35 @@ class Tile extends JLabel {
 }
 
 class ButtonListener implements ActionListener {
-
     private ButtonType button;
+    private Grid grid;
 
-    public ButtonListener(ButtonType button) {
+    public ButtonListener(ButtonType button, Grid grid) {
         this.button = button;
+        this.grid = grid;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         // check which button we are listening for
         switch (button) {
-            case Q:
-            case W:
-            case E:
-            case R:
-            case T:
-            case Y:
-            case U:
-            case I:
-            case O:
-            case P:
-            case A:
-            case S:
-            case D:
-            case F:
-            case G:
-            case H:
-            case J:
-            case K:
-            case L:
-            case Z:
-            case X:
-            case C:
-            case V:
-            case B:
-            case N:
-            case M:
+            case Q, W, E, R, T, Y, U, I, O, P, A, S, D, F, G, H, J, K, L, Z, X, C, V, B, N, M -> {
                 // when a letter, find the first empty label and add the letter to it.
-                Tile emptyLabel = Wordle.getEmptyTile(Wordle.tiles);
+                ArrayList tiles = grid.getTiles();
+                Tile emptyLabel = grid.getEmptyTile(tiles);
+                int emptyIndex = tiles.indexOf(emptyLabel);
                 //TODO: stops at end of word but cannot continue, whoops.
-                if (Wordle.tiles.indexOf(emptyLabel) == 5 | Wordle.tiles.indexOf(emptyLabel) == 10 | Wordle.tiles.indexOf(emptyLabel) == 15 | Wordle.tiles.indexOf(emptyLabel) == 20 | Wordle.tiles.indexOf(emptyLabel) == 15 | Wordle.tiles.indexOf(emptyLabel) == 25) {
+                if (emptyIndex == 5 | emptyIndex == 10 | emptyIndex == 15 | emptyIndex == 20 | emptyIndex == 25 | emptyIndex == 30) {
                     break;
                 } else {
                     JButton clicked = (JButton) e.getSource();
                     emptyLabel.setText(clicked.getText());
                 }
-                break;
+            }
 
             // for the other buttons, call the appropriate method
-            case ENTER:
-                Wordle.enter();
-                break;
-            case BACK:
-                Wordle.back();
-                break;
+            case ENTER -> grid.enter();
+            case BACK -> grid.back();
         }
     }
 }
@@ -166,11 +136,6 @@ class Key extends JButton {
     }
 
     // possibly relevant for enter()
-    public LetterState getType() {
-        return type;
-    }
-
-    // possibly relevant for enter()
     public void setType(LetterState type) {
         this.type = type;
     }
@@ -182,16 +147,85 @@ class Key extends JButton {
         } else if (type == LetterState.ABSENT) {
             setBackground(new Color(58, 58, 60));
         } else if (type == LetterState.PRESENT) {
-            setBackground(new Color(83, 141, 78));
-        } else if (type == LetterState.CORRECT) {
-            setBackground(new Color(181, 159, 59));
+            this.setBackground(new Color(181, 159, 59));
+        } else if (this.type == LetterState.CORRECT) {
+            this.setBackground(new Color(83, 141, 78));
+        }
+    }
+}
+
+// makes grid to hold tiles
+class Grid extends JPanel {
+    private ArrayList<Tile> tiles = new ArrayList<>();
+    private Word word;
+
+    public Grid() {
+        this.word = new Word(word.getTodaysWord());
+        this.setBackground(new Color(18, 18, 19));
+        this.setForeground(new Color(18, 18, 19));
+        this.setSize(new Dimension(350, 420));
+        this.setLayout(new GridLayout(6, 5, 5, 5));
+
+        //create 6 rows of 5 tiles
+        for (int i = 0; i < 30; i++) {
+            Tile tile = new Tile();
+            tiles.add(tile);
+            this.add(tile);
+        }
+    }
+
+    public ArrayList<Tile> getTiles() {
+        return tiles;
+    }
+
+
+    public Tile getEmptyTile(ArrayList<Tile> tiles) {
+        Tile emptyLabel = new Tile();
+        for(int i = 0; i < 30; i++) {
+            if (tiles.get(i).getText().equals("")) {
+                emptyLabel = tiles.get(i);
+                break;
+            }
+        }
+        return emptyLabel;
+    }
+
+    public void enter() {
+        String guess = "";
+        Tile emptyLabel = getEmptyTile(tiles);
+        int start = tiles.indexOf(emptyLabel) - 5;
+        for (int i = 0; i < 5; i++) {
+            guess = guess + tiles.get(start + i).getText();
+        }
+        if (word.isValid(guess.toLowerCase())) {
+            ArrayList letters = word.checkWord(guess.toLowerCase());
+            for (int i = 0; i < 5; i++) {
+                tiles.get(start + i).setType((LetterState) letters.get(i));
+                tiles.get(start + i).update();
+                for(Key key : Wordle.keys) {
+                    if (key.getText().equals(guess.substring(i, i + 1))) {
+                        key.setType((LetterState) letters.get(i));
+                        key.update();
+                    }
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(new JFrame(), "We don't recognize that word.", "Invalid Word", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public void back() {
+        Tile emptyLabel = getEmptyTile(tiles);
+
+        int tileToEmpty = tiles.indexOf(emptyLabel) - 1;
+        if (tileToEmpty > -1) {
+            tiles.get(tileToEmpty).setText("");
         }
     }
 }
 
 //actual gui
 public class Wordle extends JFrame {
-    static ArrayList<Tile> tiles = new ArrayList<>();
     static ArrayList<Key> keys = new ArrayList<>();
 
     public static String buttonName(ButtonType b) {
@@ -207,35 +241,11 @@ public class Wordle extends JFrame {
         };
     }
 
-    public static Tile getEmptyTile(ArrayList<Tile> tiles) {
-        Tile emptyLabel = new Tile();
-        for(int i = 0; i < 30; i++) {
-            if (tiles.get(i).getText().equals("")) {
-                emptyLabel = tiles.get(i);
-                break;
-            }
-        }
-        return emptyLabel;
-    }
-
-    public static void enter() {
-        //TODO: end suffering
-    }
-
-    public static void back() {
-        Tile emptyLabel = getEmptyTile(tiles);
-
-        int emptyIndex = tiles.indexOf(emptyLabel) - 1;
-        if (emptyIndex > -1) {
-            tiles.get(emptyIndex).setText("");
-        }
-    }
-
     public static void main(String[] args) {
         JFrame frame = new JFrame("Wordle");
 
         JPanel jPanel1 = new JPanel();
-        JPanel grid = new JPanel();
+        Grid grid = new Grid();
 
         JPanel keyboard = new JPanel();
 
@@ -252,18 +262,6 @@ public class Wordle extends JFrame {
         jPanel1Layout.columnWidths = new int[]{350};
         jPanel1Layout.rowHeights = new int[]{420};
         jPanel1.setLayout(jPanel1Layout);
-
-        grid.setBackground(new Color(18, 18, 19));
-        grid.setForeground(new Color(18, 18, 19));
-        grid.setSize(new Dimension(350, 420));
-        grid.setLayout(new GridLayout(6, 5, 5, 5));
-
-        // create 6 rows of 5 tiles
-        for (int i = 0; i < 30; i++) {
-            Tile tile = new Tile();
-            tiles.add(tile);
-            grid.add(tile);
-        }
 
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0;
@@ -288,7 +286,7 @@ public class Wordle extends JFrame {
             String name = buttonName(b);
             Key key = new Key(name);
             key.setAlignmentX(i);
-            ButtonListener listener = new ButtonListener(b);
+            ButtonListener listener = new ButtonListener(b, grid);
             key.addActionListener(listener);
             keys.add(key);
             keyRow1.add(key);
@@ -308,7 +306,7 @@ public class Wordle extends JFrame {
             String name = buttonName(b);
             Key key = new Key(name);
             key.setAlignmentX((i-10));
-            ButtonListener listener = new ButtonListener(b);
+            ButtonListener listener = new ButtonListener(b, grid);
             key.addActionListener(listener);
             keys.add(key);
             keyRow2.add(key);
@@ -328,7 +326,7 @@ public class Wordle extends JFrame {
         Key enter = new Key(name);
         enter.setAlignmentX(0);
         enter.setPreferredSize(new Dimension(65, 58));
-        ButtonListener listener = new ButtonListener(b);
+        ButtonListener listener = new ButtonListener(b, grid);
         enter.addActionListener(listener);
         keys.add(enter);
         keyRow3.add(enter);
@@ -338,7 +336,7 @@ public class Wordle extends JFrame {
             name = buttonName(b);
             Key key = new Key(name);
             key.setAlignmentX((i-20));
-            listener = new ButtonListener(b);
+            listener = new ButtonListener(b, grid);
             key.addActionListener(listener);
             keys.add(key);
             keyRow3.add(key);
@@ -347,7 +345,7 @@ public class Wordle extends JFrame {
         b = ButtonType.values()[27];
         name = buttonName(b);
         Key back = new Key(name);
-        listener = new ButtonListener(b);
+        listener = new ButtonListener(b, grid);
         back.addActionListener(listener);
         back.setAlignmentX(9);
         back.setPreferredSize(new Dimension(65, 58));
