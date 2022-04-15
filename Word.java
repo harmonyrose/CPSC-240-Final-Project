@@ -1,7 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.Collections;
 import java.util.Scanner;
 
 /**
@@ -15,39 +15,32 @@ public class Word {
 
     /**
      * calls getTodaysWord method to get random word
-     * @param todaysWord word of the day for the player
      */
-    public Word(String todaysWord) {
-        this.todaysWord = getTodaysWord();
+    public Word() {
+        this.todaysWord = generateWord();
     }
 
     /**
      * when called by game class, generates a random word from the five letter word file
      * @return random 5 letter word
      */
-    public String getTodaysWord() {
-        Random random = new Random();
-        int randomNum = random.nextInt((5757 - 1) + 1);
-        int counter = 0;
+    public String generateWord() {
+        ArrayList<String> wordList = new ArrayList();
 
+        Scanner fileScanner = null;
         try {
             File file = new File("fiveLetterWords.txt");
-            Scanner fileScanner = new Scanner(file);
-            while (fileScanner.hasNext()) {
-                fileScanner.next();
-                if (randomNum == counter)
-                {
-                    todaysWord = fileScanner.next();
-                }
-                else
-                {
-                    counter++;
-                }
-            }
+            fileScanner = new Scanner(file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        return todaysWord;
+
+        while (fileScanner.hasNext()) {
+            wordList.add(fileScanner.next());
+        }
+
+        Collections.shuffle(wordList);
+        return wordList.get(0);
     }
 
     /**
