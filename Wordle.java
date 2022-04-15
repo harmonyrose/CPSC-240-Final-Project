@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Time;
 import java.util.ArrayList;
 
 // the color states of keys and tiles
@@ -154,7 +155,7 @@ class Key extends JButton {
 
 // makes grid to hold tiles
 class Grid extends JPanel {
-    private ArrayList<Tile> tiles = new ArrayList<>();
+    private static ArrayList<Tile> tiles = new ArrayList<>();
     private Word word;
 
     public Grid() {
@@ -172,12 +173,12 @@ class Grid extends JPanel {
         }
     }
 
-    public ArrayList<Tile> getTiles() {
+    public static ArrayList<Tile> getTiles() {
         return tiles;
     }
 
 
-    public Tile getEmptyTile(ArrayList<Tile> tiles) {
+    public static Tile getEmptyTile(ArrayList<Tile> tiles) {
         Tile emptyLabel = new Tile();
         for(int i = 0; i < 30; i++) {
             if (tiles.get(i).getText().equals("")) {
@@ -214,6 +215,11 @@ class Grid extends JPanel {
                     }
                     tiles.get(start + i).setType((LetterState) results.get(i));
                     tiles.get(start + i).update();
+                    try {
+                        Thread.sleep(550);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     for (Key key : Wordle.keys) {
                         if (key.getText().equals(guess.substring(i, i + 1))) {
                             key.setType((LetterState) results.get(i));
@@ -389,5 +395,6 @@ public class Wordle extends JFrame {
         frame.pack();
         frame.setVisible(true);
     }
+
 }
 

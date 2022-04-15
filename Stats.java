@@ -1,5 +1,6 @@
 import java.io.PrintWriter;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Scanner;
 import static java.time.LocalTime.now;
 
@@ -15,6 +16,7 @@ public class Stats {
     private int winPercent;
     private int currentStreak;
     private int maxStreak;
+    private String recentGame;
 
     public Stats(String fileName){
         this.fileName = fileName;
@@ -42,6 +44,7 @@ public class Stats {
         updateWinPercent(isCorrect);
         updateCurrentStreak(isCorrect);
         updateMaxStreak();
+        updateRecentGame();
     }
 
     /**
@@ -54,13 +57,15 @@ public class Stats {
         writer.println(winPercent);
         writer.println(currentStreak);
         writer.println(maxStreak);
+        writer.println();
+        writer.println(recentGame);
         writer.close();
     }
 
     /**
      * Adds 1 to the number of games played after each game
      */
-    public void updateGamesPlayed(){
+    public void updateGamesPlayed() {
         this.gamesPlayed++;
     }
 
@@ -101,6 +106,42 @@ public class Stats {
     public void updateMaxStreak(){
         if(currentStreak > maxStreak){
             this.maxStreak = currentStreak;
+        }
+    }
+
+    /**
+     * returns the emoji grid of the most recent game
+     */
+    public void updateRecentGame() {
+        recentGame = "Wordle " + gamesPlayed;
+        ArrayList<Tile> tiles = Grid.getTiles();
+        Tile emptyLabel = Grid.getEmptyTile(tiles);
+
+        if (tiles.indexOf(emptyLabel) == 5) {
+            recentGame += " 1/6\n";
+        } else if (tiles.indexOf(emptyLabel) == 10) {
+            recentGame += " 2/6\n";
+        } else if (tiles.indexOf(emptyLabel) == 15) {
+            recentGame += " 3/6\n";
+        } else if (tiles.indexOf(emptyLabel) == 15) {
+            recentGame += " 4/6\n";
+        } else if (tiles.indexOf(emptyLabel) == 15) {
+            recentGame += " 5/6\n";
+        } else if (tiles.indexOf(emptyLabel) == 15) {
+            recentGame += " 6/6\n";
+        } else {
+            recentGame += " X/6\n";
+        }
+        for (Tile tile : tiles) {
+            if (tile.getType() == LetterState.ABSENT) {
+                recentGame = recentGame + "\u2B1B";
+            } else if (tile.getType() == LetterState.PRESENT) {
+                recentGame += "\uD83D\uDFE8";
+            } else if (tile.getType() == LetterState.CORRECT) {
+                recentGame += "\uD83D\uDFE9";
+            }
+            if (tiles.indexOf(tile) == 4 | tiles.indexOf(tile) == 9 | tiles.indexOf(tile) == 14 | tiles.indexOf(tile) == 19 | tiles.indexOf(tile) == 24 | tiles.indexOf(tile) == 29)
+                recentGame += "\n";
         }
     }
 
