@@ -229,6 +229,8 @@ class Grid extends JPanel {
                 }
                 if (counter == 5) {
                     JOptionPane.showMessageDialog(new JFrame(), "Hooray! You won!", "Congrats!", JOptionPane.INFORMATION_MESSAGE);
+                    Stats sample = new Stats("sample.txt");
+                    sample.updateStats(true);
                 } else if (tiles.get(29).getType() != LetterState.DEFAULT) {
                     JOptionPane.showMessageDialog(new JFrame(), "Oh no! You lost :(", "Sorry...", JOptionPane.INFORMATION_MESSAGE);
                 }
@@ -254,6 +256,8 @@ class Grid extends JPanel {
 
 //actual gui
 public class Wordle extends JFrame {
+
+
     static ArrayList<Key> keys = new ArrayList<>();
 
     public static String buttonName(ButtonType b) {
