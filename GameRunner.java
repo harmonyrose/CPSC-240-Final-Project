@@ -3,26 +3,9 @@ import java.awt.*;
 
 public class GameRunner {
     public static void main(String[] args) {
-        JFrame frame0 = new JFrame("Login");
 
-        frame0.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        frame0.setSize(new Dimension(600, 400));
-
-        frame0.getContentPane().setLayout(new BoxLayout(frame0.getContentPane(), BoxLayout.Y_AXIS));
-
-        JLabel label = new JLabel("Enter your username");
-        frame0.getContentPane().add(label);
-
-        JTextField field = new JTextField(10);
-        frame0.getContentPane().add(field);
-
-        Login.addButton("Enter",frame0,field);
-
-        frame0.pack();
-        frame0.setVisible(true);
-
-        JFrame frame = new JFrame("Wordle");
+       JFrame frame = new JFrame("Wordle");
 
         JPanel jPanel1 = new JPanel();
         Grid grid = new Grid();
@@ -146,5 +129,9 @@ public class GameRunner {
         }
         frame.pack();
         frame.setVisible(true);
+
+
+        new Login().setVisible(true);
     }
+
 }
