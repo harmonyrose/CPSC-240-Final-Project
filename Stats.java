@@ -1,5 +1,6 @@
 import java.io.PrintWriter;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Scanner;
 import static java.time.LocalTime.now;
 
@@ -15,6 +16,7 @@ public class Stats {
     private int winPercent;
     private int currentStreak;
     private int maxStreak;
+    private String recentGame;
 
     public Stats(String fileName){
         this.fileName = fileName;
@@ -46,6 +48,7 @@ public class Stats {
         updateWinPercent(isCorrect);
         updateCurrentStreak(isCorrect);
         updateMaxStreak();
+        updateRecentGame();
     }
 
     /**
@@ -58,6 +61,8 @@ public class Stats {
         writer.println(winPercent);
         writer.println(currentStreak);
         writer.println(maxStreak);
+        writer.println();
+        writer.print(recentGame);
         writer.close();
     }
 
@@ -109,6 +114,43 @@ public class Stats {
     }
 
     /**
+     * returns the emoji grid of the most recent game
+     */
+    public void updateRecentGame() {
+        recentGame = "Wordle " + gamesPlayed;
+        ArrayList<Tile> tiles = Grid.getTiles();
+        Tile emptyLabel = Grid.getEmptyTile(tiles);
+
+        if (tiles.indexOf(emptyLabel) == 5) {
+            recentGame += " 1/6\n";
+        } else if (tiles.indexOf(emptyLabel) == 10) {
+            recentGame += " 2/6\n";
+        } else if (tiles.indexOf(emptyLabel) == 15) {
+            recentGame += " 3/6\n";
+        } else if (tiles.indexOf(emptyLabel) == 20) {
+            recentGame += " 4/6\n";
+        } else if (tiles.indexOf(emptyLabel) == 25) {
+            recentGame += " 5/6\n";
+        } else if (tiles.get(25).getType() == LetterState.CORRECT && tiles.get(26).getType() == LetterState.CORRECT && tiles.get(27).getType() == LetterState.CORRECT && tiles.get(28).getType() == LetterState.CORRECT && tiles.get(29).getType() == LetterState.CORRECT) {
+            recentGame += " 6/6\n";
+        } else {
+            recentGame += " X/6\n";
+        }
+        for (Tile tile : tiles) {
+            if (tile.getText().equals("")) {
+                break;
+            }
+            switch(tile.getType()) {
+                case ABSENT -> recentGame += "\u2B1B";
+                case PRESENT -> recentGame += "\uD83D\uDFE8";
+                case CORRECT -> recentGame += "\uD83D\uDFE9";
+            }
+            if (tiles.indexOf(tile) == 4 | tiles.indexOf(tile) == 9 | tiles.indexOf(tile) == 14 | tiles.indexOf(tile) == 19 | tiles.indexOf(tile) == 24)
+                recentGame += "\n";
+        }
+    }
+
+    /**
      * Resets the user's stats to those of a new player
      */
 
@@ -118,6 +160,5 @@ public class Stats {
         currentStreak = 0;
         maxStreak = 0;
     }
-
 
 }
