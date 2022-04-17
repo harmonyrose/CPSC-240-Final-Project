@@ -69,16 +69,13 @@ class Tile extends JLabel {
         this.setPreferredSize(new Dimension(62, 62));
     }
 
-    //hopefully changes background after pressing enter?
+    //changes background based on LetterState
     public void update() {
-        if (this.type == LetterState.DEFAULT) {
-            this.setBackground(new Color(18, 18, 19));
-        } else if (this.type == LetterState.ABSENT) {
-            this.setBackground(new Color(58, 58, 60));
-        } else if (this.type == LetterState.PRESENT) {
-            this.setBackground(new Color(181, 159, 59));
-        } else if (this.type == LetterState.CORRECT) {
-            this.setBackground(new Color(83, 141, 78));
+        switch(type) {
+            case DEFAULT -> this.setBackground(new Color(18, 18, 19));
+            case ABSENT -> this.setBackground(new Color(58, 58, 60));
+            case PRESENT -> this.setBackground(new Color(181, 159, 59));
+            case CORRECT -> this.setBackground(new Color(83, 141, 78));
         }
     }
 
@@ -136,21 +133,18 @@ class Key extends JButton {
         this.setPreferredSize(new Dimension(43, 58));
     }
 
-    // possibly relevant for enter()
+    //
     public void setType(LetterState type) {
         this.type = type;
     }
 
-    //hopefully changes background after pressing enter?
+    //
     public void update() {
-        if (type == LetterState.DEFAULT) {
-            setBackground(new Color(129, 131, 132));
-        } else if (type == LetterState.ABSENT) {
-            setBackground(new Color(58, 58, 60));
-        } else if (type == LetterState.PRESENT) {
-            this.setBackground(new Color(181, 159, 59));
-        } else if (this.type == LetterState.CORRECT) {
-            this.setBackground(new Color(83, 141, 78));
+        switch(type) {
+            case DEFAULT -> setBackground(new Color(129, 131, 132));
+            case ABSENT -> setBackground(new Color(58, 58, 60));
+            case PRESENT -> this.setBackground(new Color(181, 159, 59));
+            case CORRECT -> this.setBackground(new Color(83, 141, 78));
         }
     }
 }
@@ -206,7 +200,7 @@ class Grid extends JPanel {
             JOptionPane.showMessageDialog(new JFrame(), "Please type a full word.", "Incomplete Word", JOptionPane.ERROR_MESSAGE);
         } else {
             for (int i = 0; i < 5; i++) {
-                guess = guess + tiles.get(start + i).getText();
+                guess += tiles.get(start + i).getText();
             }
             if (word.isValid(guess)) {
                 ArrayList results = word.checkWord(guess.toLowerCase());
@@ -217,11 +211,6 @@ class Grid extends JPanel {
                     }
                     tiles.get(start + i).setType((LetterState) results.get(i));
                     tiles.get(start + i).update();
-                    try {
-                        Thread.sleep(550);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                     for (Key key : Wordle.keys) {
                         if (key.getText().equals(guess.substring(i, i + 1))) {
                             key.setType((LetterState) results.get(i));
@@ -242,7 +231,7 @@ class Grid extends JPanel {
                     }
                     new displayStats().setVisible(true);
                 } else if (tiles.get(29).getType() != LetterState.DEFAULT) {
-                    JOptionPane.showMessageDialog(new JFrame(), "Oh no! You lost :(", "Sorry...", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(new JFrame(), "Sorry, the word was '" + word.getWord() + "'", "Game Ended", JOptionPane.INFORMATION_MESSAGE);
                     Stats stats = new Stats(user);
                     stats.updateStats(false);
                     try {
@@ -261,14 +250,14 @@ class Grid extends JPanel {
 
     public void back() {
         Tile emptyLabel = getEmptyTile(tiles);
-        int tileToEmpty = 0;
+        int indexToEmpty = 0;
         if (emptyLabel.getText().equals("end")) {
-            tileToEmpty = 29;
+            indexToEmpty = 29;
         } else {
-            tileToEmpty = tiles.indexOf(emptyLabel) - 1;
+            indexToEmpty = tiles.indexOf(emptyLabel) - 1;
         }
-        if (tileToEmpty > -1 && tiles.get(tileToEmpty).getType() == LetterState.DEFAULT) {
-            tiles.get(tileToEmpty).setText("");
+        if (indexToEmpty >= 0 && tiles.get(indexToEmpty).getType() == LetterState.DEFAULT) {
+            tiles.get(indexToEmpty).setText("");
         }
     }
 }

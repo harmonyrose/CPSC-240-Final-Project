@@ -21,6 +21,13 @@ public class Word {
     }
 
     /**
+     * brings the actual word
+     */
+    public String getWord() {
+        return todaysWord;
+    }
+
+    /**
      * when called by game class, generates a random word from the five letter word file
      * @return random 5 letter word
      */
