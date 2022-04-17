@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.sql.Time;
 import java.util.ArrayList;
 
@@ -227,12 +229,29 @@ class Grid extends JPanel {
                         }
                     }
                 }
+                String user = Login.ButtonListener2.getUser();
                 if (counter == 5) {
                     JOptionPane.showMessageDialog(new JFrame(), "Hooray! You won!", "Congrats!", JOptionPane.INFORMATION_MESSAGE);
-                    Stats sample = new Stats("sample.txt");
-                    sample.updateStats(true);
+                    Stats stats = new Stats(user);
+                    stats.updateStats(true);
+                    try {
+                        PrintWriter writer = new PrintWriter("stats/" + user);
+                        stats.saveStats(writer);
+                    } catch (FileNotFoundException ex) {
+                        ex.printStackTrace();
+                    }
+                    new displayStats().setVisible(true);
                 } else if (tiles.get(29).getType() != LetterState.DEFAULT) {
                     JOptionPane.showMessageDialog(new JFrame(), "Oh no! You lost :(", "Sorry...", JOptionPane.INFORMATION_MESSAGE);
+                    Stats stats = new Stats(user);
+                    stats.updateStats(false);
+                    try {
+                        PrintWriter writer = new PrintWriter("stats/" + user);
+                        stats.saveStats(writer);
+                    } catch (FileNotFoundException ex) {
+                        ex.printStackTrace();
+                    }
+                    new displayStats().setVisible(true);
                 }
             } else {
                 JOptionPane.showMessageDialog(new JFrame(), "We don't recognize that word.", "Invalid Word", JOptionPane.ERROR_MESSAGE);

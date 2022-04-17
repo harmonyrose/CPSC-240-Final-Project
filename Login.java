@@ -84,10 +84,11 @@ public class Login extends javax.swing.JFrame {
     class ButtonListener2 implements ActionListener {
 
         private JTextField input;
-        private String user;
+        private static String user;
 
         public ButtonListener2(JTextField input) {
             this.input = input;
+            this.user = input.getText();
         }
 
 
@@ -108,6 +109,10 @@ public class Login extends javax.swing.JFrame {
                     ex.printStackTrace();
                 }
                 setVisible(false);
+            }
+
+            public static String getUser(){
+                return user;
             }
         }
 
