@@ -1,10 +1,12 @@
+import javax.swing.*;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+
 public class displayStats extends javax.swing.JFrame {
 
-
-    public displayStats() {
+    public displayStats(){
         initComponents();
     }
-
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">
@@ -63,11 +65,16 @@ public class displayStats extends javax.swing.JFrame {
             }
         });
 
+
         button2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         button2.setLabel("Reset Stats");
+        button2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) { button2ActionPerformed(evt); } });
 
         button3.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         button3.setLabel("Quit");
+        button3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) { button3ActionPerformed(); } });
 
         label10.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         label10.setText("Streak");
@@ -153,7 +160,28 @@ public class displayStats extends javax.swing.JFrame {
     }// </editor-fold>
 
     private void button1ActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
+        //still figuring this out
+        //dispose(); //closes stats window
+        //GameRunner.dispose();
+        //GameRunner game = new GameRunner();
+        //GameRunner.setVisible();
+    }
+
+    private void button2ActionPerformed(java.awt.event.ActionEvent evt) {
+        String user = Login.ButtonListener2.getUser();
+        Stats stats = new Stats(user);
+        PrintWriter pw = null;
+        try {
+            pw = new PrintWriter("stats/" + user);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        stats.reset();
+        stats.saveStats(pw);
+    }
+
+    private void button3ActionPerformed() {
+        System.exit(0);
     }
 
     public static void main(String args[]) {
@@ -162,6 +190,7 @@ public class displayStats extends javax.swing.JFrame {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
+        JFrame frame = new JFrame("Statistics");
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
