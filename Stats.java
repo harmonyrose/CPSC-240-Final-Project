@@ -210,6 +210,14 @@ public class Stats {
         winPercent = 0;
         currentStreak = 0;
         maxStreak = 0;
+        this.rounds = new ArrayList<Integer>();
+        this.rounds.add(0);
+        this.rounds.add(0);
+        this.rounds.add(0);
+        this.rounds.add(0);
+        this.rounds.add(0);
+        this.rounds.add(0);
+        saveStats();
     }
 
     /**
