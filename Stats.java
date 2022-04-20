@@ -32,10 +32,10 @@ public class Stats {
      */
 
     public Stats(Scanner in){
-        gamesPlayed = Integer.parseInt(in.nextLine());
-        winPercent = Integer.parseInt(in.nextLine());
-        currentStreak = Integer.parseInt(in.nextLine());
-        maxStreak = Integer.parseInt(in.nextLine());
+        gamesPlayed = in.nextInt();
+        winPercent = in.nextInt();
+        currentStreak = in.nextInt();
+        maxStreak = in.nextInt();
     }
 
     /**
@@ -161,4 +161,31 @@ public class Stats {
         maxStreak = 0;
     }
 
+    /**
+     * @return current game streak
+     */
+    public int getCurrentStreak() {
+        return currentStreak;
+    }
+
+    /**
+     * @return Amount of games played
+     */
+    public int getGamesPlayed() {
+        return gamesPlayed;
+    }
+
+    /**
+     * @return Maximum game streak
+     */
+    public int getMaxStreak() {
+        return maxStreak;
+    }
+
+    /**
+     * @return Percent Wins the user has
+     */
+    public int getWinPercent() {
+        return winPercent;
+    }
 }

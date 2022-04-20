@@ -1,10 +1,12 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 // the color states of keys and tiles
 enum LetterState {
@@ -219,9 +221,18 @@ class Grid extends JPanel {
                     }
                 }
                 String user = Login.ButtonListener2.getUser();
+
+                File userStats = new File("stats/" + user);
+                Scanner in = null;
+                try {
+                    in = new Scanner(userStats);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+
                 if (counter == 5) {
                     JOptionPane.showMessageDialog(new JFrame(), "Hooray! You won!", "Congrats!", JOptionPane.INFORMATION_MESSAGE);
-                    Stats stats = new Stats(user);
+                    Stats stats = new Stats(in);
                     stats.updateStats(true);
                     try {
                         PrintWriter writer = new PrintWriter("stats/" + user);
@@ -232,7 +243,7 @@ class Grid extends JPanel {
                     new displayStats().setVisible(true);
                 } else if (tiles.get(29).getType() != LetterState.DEFAULT) {
                     JOptionPane.showMessageDialog(new JFrame(), "Sorry, the word was '" + word.getWord() + "'", "Game Ended", JOptionPane.INFORMATION_MESSAGE);
-                    Stats stats = new Stats(user);
+                    Stats stats = new Stats(in);
                     stats.updateStats(false);
                     try {
                         PrintWriter writer = new PrintWriter("stats/" + user);

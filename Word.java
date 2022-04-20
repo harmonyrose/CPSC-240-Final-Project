@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Scanner;
 
 /**
@@ -47,7 +48,8 @@ public class Word {
         }
 
         Collections.shuffle(wordList);
-        return wordList.get(0);
+        System.out.println(wordList.get(0));
+        return wordList.get(0).toLowerCase(Locale.ROOT);
     }
 
     /**

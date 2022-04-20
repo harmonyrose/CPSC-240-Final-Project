@@ -1,16 +1,30 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class GameRunner {
+/**
+ * GameRunner is responsible for running the game by creating the Wordle Frame
+ * @version 1.0
+ */
+public class GameRunner extends javax.swing.JFrame{
+
+    static JFrame frame;
+
     public static void main(String[] args) {
+        createWordle();
+        new Login().setVisible(true);
+    }
 
+    /**
+     * creates Wordle frame
+     */
+    public static void createWordle() {
 
-       JFrame frame = new JFrame("Wordle");
+        frame = new JFrame("Wordle");
 
         JPanel jPanel1 = new JPanel();
         Grid grid = new Grid();
-
-        JPanel keyboard = new JPanel();
+        JPanel keyboard = null;
+        keyboard = new JPanel();
 
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setBackground(new Color(18, 18, 19));
@@ -129,9 +143,6 @@ public class GameRunner {
         }
         frame.pack();
         frame.setVisible(true);
-
-
-        new Login().setVisible(true);
     }
 
 }

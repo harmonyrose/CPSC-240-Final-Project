@@ -3,8 +3,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.util.Scanner;
 
-
+/**
+ * Login is responsible for allowing player to enter their username to login to game
+ */
 public class Login extends javax.swing.JFrame {
 
 
@@ -86,32 +89,56 @@ public class Login extends javax.swing.JFrame {
         private JTextField input;
         private static String user;
 
+        /**
+         * Accesses the username the player entered to the textfield
+         * @param input player username
+         */
         public ButtonListener2(JTextField input) {
             this.input = input;
             this.user = input.getText();
         }
 
-
-            public void actionPerformed(ActionEvent e){
+        /**
+         * Creates a new stats file if the player is new, otherwise accesses their already existing file
+         * @param e button press
+         */
+        public void actionPerformed(ActionEvent e){
                 user = input.getText();
                 new File("stats/").mkdirs();
-                try {
-                    File userStats = new File("stats/" + user);
-                    userStats.createNewFile();
-                } catch (IOException f) {
-                    f.printStackTrace();
+
+                File userStats = new File("stats/" + user);
+                if (userStats.length()==0) {
+                    try {
+                        userStats.createNewFile();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                    Stats newUser = new Stats(user);
+                    try {
+                        PrintWriter writer = new PrintWriter("stats/" + user);
+                        newUser.saveStats(writer);
+                    } catch (FileNotFoundException ex) {
+                        ex.printStackTrace();
+                    }
+                } else {
+
+                    Scanner in = null;
+                    try {
+                        in = new Scanner(userStats);
+                    } catch (FileNotFoundException ex) {
+                        ex.printStackTrace();
+                    }
+                    Stats user = new Stats(in);
                 }
-                Stats newUser = new Stats(user);
-                try {
-                    PrintWriter writer = new PrintWriter("stats/" + user);
-                    newUser.saveStats(writer);
-                } catch (FileNotFoundException ex) {
-                    ex.printStackTrace();
-                }
+
                 setVisible(false);
             }
 
-            public static String getUser(){
+        /**
+         * Gets player's username
+         * @return username of player
+         */
+        public static String getUser(){
                 return user;
             }
         }

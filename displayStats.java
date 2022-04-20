@@ -1,16 +1,55 @@
 import javax.swing.*;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.Scanner;
 
+/**
+ * displayStats creates a stats screen after the game has been played that lists stats and option buttons for user
+ * @version 1.0
+ */
 public class displayStats extends javax.swing.JFrame {
+
+    JFrame gameFrame;
+    private Stats stats;
+    private String user;
+    private static int gamesPlayed;
+    private static int winPercent;
+    private static int currentStreak;
+    private static int maxStreak;
 
     public displayStats(){
         initComponents();
     }
 
+    /**
+     * gets the values for each of the player's stats
+     */
+    public static void getStats(){
+        String user = Login.ButtonListener2.getUser();
+        File file = new File("stats/" + user);
+
+        Scanner in = null;
+        try {
+            in = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        Stats stats = new Stats(in);
+        gamesPlayed = stats.getGamesPlayed();
+        winPercent = stats.getWinPercent();
+        currentStreak = stats.getCurrentStreak();
+        maxStreak = stats.getMaxStreak();
+
+
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">
     private void initComponents() {
+
+        getStats();
 
         label1 = new java.awt.Label();
         label2 = new java.awt.Label();
@@ -33,16 +72,16 @@ public class displayStats extends javax.swing.JFrame {
         label1.setText("STATISTICS");
 
         label2.setFont(new java.awt.Font("Dialog", 0, 36)); // NOI18N
-        label2.setText("99");
+        label2.setText("" + gamesPlayed); //played
 
         label3.setFont(new java.awt.Font("Dialog", 0, 36)); // NOI18N
-        label3.setText("99");
+        label3.setText("" + winPercent + "%"); //win %
 
         label4.setFont(new java.awt.Font("Dialog", 0, 36)); // NOI18N
-        label4.setText("99");
+        label4.setText("" + currentStreak); //current streak
 
         label5.setFont(new java.awt.Font("Dialog", 0, 36)); // NOI18N
-        label5.setText("99");
+        label5.setText("" + maxStreak); //max streak
 
         label6.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         label6.setText("Played");
@@ -95,7 +134,7 @@ public class displayStats extends javax.swing.JFrame {
                                         .addGroup(layout.createSequentialGroup()
                                                 .addGap(31, 31, 31)
                                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                        .addComponent(label3, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(label3, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                         .addComponent(label7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                                 .addGap(29, 29, 29)
                                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -159,32 +198,48 @@ public class displayStats extends javax.swing.JFrame {
         pack();
     }// </editor-fold>
 
+    /**
+     * play again button allows user to play wordle again
+     * @param evt
+     */
     private void button1ActionPerformed(java.awt.event.ActionEvent evt) {
-        //still figuring this out
-        //dispose(); //closes stats window
-        //GameRunner.dispose();
-        //GameRunner game = new GameRunner();
-        //GameRunner.setVisible();
+        gameFrame = GameRunner.frame;
+        gameFrame.dispose();
+        dispose();
+        GameRunner.createWordle();
     }
 
+    /**
+     * restart stats button allows user to reset their stats to 0
+     * @param evt
+     */
     private void button2ActionPerformed(java.awt.event.ActionEvent evt) {
         String user = Login.ButtonListener2.getUser();
-        Stats stats = new Stats(user);
         PrintWriter pw = null;
         try {
             pw = new PrintWriter("stats/" + user);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        stats.reset();
+
+        stats = new Stats(user);
         stats.saveStats(pw);
+
+        label2.setText("0"); //played
+        label3.setText("0%"); //win %
+        label4.setText("0"); //current streak
+        label5.setText("0"); //max streak
     }
 
+    /**
+     * Exit button closes the program
+     */
     private void button3ActionPerformed() {
         System.exit(0);
     }
 
     public static void main(String args[]) {
+
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -208,8 +263,8 @@ public class displayStats extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(displayStats.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
 
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
+       java.awt.EventQueue.invokeLater(new Runnable() {
+           public void run() {
                 new displayStats().setVisible(true);
             }
         });
