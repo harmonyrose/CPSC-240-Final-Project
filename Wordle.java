@@ -221,17 +221,17 @@ class Grid extends JPanel {
                     }
                 }
                 String user = Login.ButtonListener2.getUser();
-
-                File userStats = new File("stats/" + user);
-                Scanner in = null;
-                try {
-                    in = new Scanner(userStats);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-
                 if (counter == 5) {
                     JOptionPane.showMessageDialog(new JFrame(), "Hooray! You won!", "Congrats!", JOptionPane.INFORMATION_MESSAGE);
+                    File file = new File("stats/" + user);
+
+                    Scanner in = null;
+                    try {
+                        in = new Scanner(file);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
                     Stats stats = new Stats(in);
                     stats.updateStats(true);
                     try {
@@ -243,6 +243,15 @@ class Grid extends JPanel {
                     new displayStats().setVisible(true);
                 } else if (tiles.get(29).getType() != LetterState.DEFAULT) {
                     JOptionPane.showMessageDialog(new JFrame(), "Sorry, the word was '" + word.getWord() + "'", "Game Ended", JOptionPane.INFORMATION_MESSAGE);
+                    File file = new File("stats/" + user);
+
+                    Scanner in = null;
+                    try {
+                        in = new Scanner(file);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
                     Stats stats = new Stats(in);
                     stats.updateStats(false);
                     try {
