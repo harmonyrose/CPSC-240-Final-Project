@@ -1,5 +1,6 @@
-// represents the letters on a keyboard
-
+/**
+ * list of keys on keyboard
+ */
 public enum ButtonType {
     // row 1
     Q,

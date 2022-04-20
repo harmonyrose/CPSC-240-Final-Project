@@ -1,5 +1,6 @@
-// the color states of keys and tiles
-
+/**
+ * the presence of keys and tiles to change background colors
+ */
 public enum LetterState {
     PRESENT,
     CORRECT,
