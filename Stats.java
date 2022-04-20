@@ -1,8 +1,7 @@
+import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
-import static java.time.LocalTime.now;
 
 /**
  * The Stats class stores the user's achievements in Wordle and displays them to the user after each game.
@@ -17,88 +16,115 @@ public class Stats {
     private int currentStreak;
     private int maxStreak;
     private String recentGame;
+    private ArrayList<Integer> rounds;
 
-    public Stats(String fileName){
+    public Stats(String fileName) {
         this.fileName = fileName;
         this.gamesPlayed = 0;
         this.winPercent = 0;
         this.currentStreak = 0;
         this.maxStreak = 0;
+        this.rounds = new ArrayList<Integer>();
+        this.rounds.add(0);
+        this.rounds.add(0);
+        this.rounds.add(0);
+        this.rounds.add(0);
+        this.rounds.add(0);
+        this.rounds.add(0);
     }
 
     /**
      * Reads in a user's stats from a file
+     *
      * @param in scanner to read the stats file
      */
 
-    public Stats(Scanner in){
+    public Stats(Scanner in) {
+        fileName = in.nextLine();
         gamesPlayed = in.nextInt();
         winPercent = in.nextInt();
         currentStreak = in.nextInt();
         maxStreak = in.nextInt();
+        in.nextLine();
+        rounds = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            rounds.add(in.nextInt());
+        }
     }
 
     /**
      * Updates a user's stats after they play one round.
+     *
      * @param isCorrect is passed to updateWinPercent and updateCurrentStreak
      */
 
-    public void updateStats(boolean isCorrect){
+    public void updateStats(boolean isCorrect, Grid grid) {
         updateGamesPlayed();
         updateWinPercent(isCorrect);
         updateCurrentStreak(isCorrect);
         updateMaxStreak();
-        updateRecentGame();
+        updateRounds(grid);
+        updateRecentGame(grid);
     }
 
     /**
      * Saves the user's stats into their file
-     * @param writer writes to the user's stats file
      */
 
-    public void saveStats(PrintWriter writer){
-        writer.println(gamesPlayed);
-        writer.println(winPercent);
-        writer.println(currentStreak);
-        writer.println(maxStreak);
-        writer.println();
-        writer.print(recentGame);
-        writer.close();
+    public void saveStats() {
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter("stats/" + fileName);
+            writer.println(fileName);
+            writer.println(gamesPlayed);
+            writer.println(winPercent);
+            writer.println(currentStreak);
+            writer.println(maxStreak);
+            writer.println();
+            for (Integer round : rounds) {
+                writer.println(round);
+            }
+            writer.println();
+            writer.print(recentGame);
+            writer.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
      * Adds 1 to the number of games played after each game
      */
-    public void updateGamesPlayed(){
+    public void updateGamesPlayed() {
         this.gamesPlayed++;
     }
 
     /**
      * Updates the user's win percentage based on whether they guessed the word
+     *
      * @param isCorrect represents whether the user guessed the word correctly
      */
 
-    public void updateWinPercent(boolean isCorrect){
-        if(isCorrect){
-            this.winPercent = (int)(((gamesPlayed-1) * winPercent) + 100)/ gamesPlayed;
-        }
-        else{
-            this.winPercent = (int)((gamesPlayed-1) * winPercent)/ gamesPlayed;
+    public void updateWinPercent(boolean isCorrect) {
+        if (isCorrect) {
+            this.winPercent = (int) (((gamesPlayed - 1) * winPercent) + 100) / gamesPlayed;
+        } else {
+            this.winPercent = (int) ((gamesPlayed - 1) * winPercent) / gamesPlayed;
         }
     }
 
     /**
      * Add 1 to their current streak if they guessed the word correctly. Otherwise, reset their
      * streak to 0.
+     *
      * @param isCorrect represents whether the user guessed the word correctly
      */
 
-    public void updateCurrentStreak(boolean isCorrect){
-        if(isCorrect){
+    public void updateCurrentStreak(boolean isCorrect) {
+        if (isCorrect) {
             this.currentStreak++;
-        }
-        else{
-            this.currentStreak=0;
+        } else {
+            this.currentStreak = 0;
         }
     }
 
@@ -107,19 +133,21 @@ public class Stats {
      * Otherwise, the max streak does not change
      */
 
-    public void updateMaxStreak(){
-        if(currentStreak > maxStreak){
+    public void updateMaxStreak() {
+        if (currentStreak > maxStreak) {
             this.maxStreak = currentStreak;
         }
     }
 
     /**
-     * returns the emoji grid of the most recent game
+     * updates the emoji grid of the most recent game.
+     *
+     * @param grid the grid of letters from Wordle as to print them out
      */
-    public void updateRecentGame() {
+    public void updateRecentGame(Grid grid) {
         recentGame = "Wordle " + gamesPlayed;
-        ArrayList<Tile> tiles = Grid.getTiles();
-        Tile emptyLabel = Grid.getEmptyTile(tiles);
+        ArrayList<Tile> tiles = grid.getTiles();
+        Tile emptyLabel = grid.getEmptyTile();
 
         if (tiles.indexOf(emptyLabel) == 5) {
             recentGame += " 1/6\n";
@@ -140,7 +168,7 @@ public class Stats {
             if (tile.getText().equals("")) {
                 break;
             }
-            switch(tile.getType()) {
+            switch (tile.getType()) {
                 case ABSENT -> recentGame += "\u2B1B";
                 case PRESENT -> recentGame += "\uD83D\uDFE8";
                 case CORRECT -> recentGame += "\uD83D\uDFE9";
@@ -151,10 +179,33 @@ public class Stats {
     }
 
     /**
+     * updates which round the player finished on
+     *
+     * @param grid the grid of letters from Wordle to examine the last round
+     */
+    public void updateRounds(Grid grid) {
+        ArrayList<Tile> tiles = grid.getTiles();
+
+        if (tiles.get(0).getType() == LetterState.CORRECT && tiles.get(1).getType() == LetterState.CORRECT && tiles.get(2).getType() == LetterState.CORRECT && tiles.get(3).getType() == LetterState.CORRECT && tiles.get(4).getType() == LetterState.CORRECT) {
+            this.rounds.set(0, (rounds.get(0) + 1));
+        } else if (tiles.get(5).getType() == LetterState.CORRECT && tiles.get(6).getType() == LetterState.CORRECT && tiles.get(7).getType() == LetterState.CORRECT && tiles.get(8).getType() == LetterState.CORRECT && tiles.get(9).getType() == LetterState.CORRECT) {
+            this.rounds.set(1, (rounds.get(1) + 1));
+        } else if (tiles.get(10).getType() == LetterState.CORRECT && tiles.get(11).getType() == LetterState.CORRECT && tiles.get(12).getType() == LetterState.CORRECT && tiles.get(13).getType() == LetterState.CORRECT && tiles.get(14).getType() == LetterState.CORRECT) {
+            this.rounds.set(2, (rounds.get(2) + 1));
+        } else if (tiles.get(15).getType() == LetterState.CORRECT && tiles.get(16).getType() == LetterState.CORRECT && tiles.get(17).getType() == LetterState.CORRECT && tiles.get(18).getType() == LetterState.CORRECT && tiles.get(19).getType() == LetterState.CORRECT) {
+            this.rounds.set(3, (rounds.get(3) + 1));
+        } else if (tiles.get(20).getType() == LetterState.CORRECT && tiles.get(21).getType() == LetterState.CORRECT && tiles.get(22).getType() == LetterState.CORRECT && tiles.get(23).getType() == LetterState.CORRECT && tiles.get(24).getType() == LetterState.CORRECT) {
+            this.rounds.set(4, (rounds.get(4) + 1));
+        } else if (tiles.get(25).getType() == LetterState.CORRECT && tiles.get(26).getType() == LetterState.CORRECT && tiles.get(27).getType() == LetterState.CORRECT && tiles.get(28).getType() == LetterState.CORRECT && tiles.get(29).getType() == LetterState.CORRECT) {
+            this.rounds.set(5, (rounds.get(5) + 1));
+        }
+    }
+
+    /**
      * Resets the user's stats to those of a new player
      */
 
-    public void reset(){
+    public void reset() {
         gamesPlayed = 0;
         winPercent = 0;
         currentStreak = 0;
@@ -187,5 +238,12 @@ public class Stats {
      */
     public int getWinPercent() {
         return winPercent;
+    }
+
+    /**
+     * @return arraylist of rounds the user has scored
+     */
+    public ArrayList<Integer> getRounds() {
+        return rounds;
     }
 }
