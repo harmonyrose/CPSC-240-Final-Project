@@ -75,9 +75,9 @@ public class ButtonListener implements ActionListener {
                 case BACK -> grid.back();
             }
         } else if (stats != null) {
-            if (((JButton)e.getSource()).getText().equals("QUIT")) {
+            if (((JButton)e.getSource()).getText().equals("Quit")) {
                 System.exit(0);
-            } else if (((JButton)e.getSource()).getText().equals("RESET STATS")) {
+            } else if (((JButton)e.getSource()).getText().equals("Reset Stats")) {
                 stats.reset();
             } else if (((JButton)e.getSource()).getText().equals("PLAY AGAIN")) {
                 new Wordle(stats);
